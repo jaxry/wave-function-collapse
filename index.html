@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WFC</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.19/system.js"></script>
+  <script src="dist.js"></script>
+</head>
+
+<body>
+
+  <label>Image: <input id="imageInput" type="file" accept="image/*"></label>
+  <canvas id="imageOutput" width="0" height="0"></canvas>
+
+  <script>
+    SystemJS.import("main");
+  </script>
+</body>
+</html>
