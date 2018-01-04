@@ -1,0 +1,9 @@
+label {
+  display: block;
+}
+
+#imageOutput {
+  width: 500px;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated;
+}

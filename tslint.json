@@ -1,0 +1,15 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "no-console": false,
+    "forin": false,
+    "no-shadowed-variable": false,
+    "no-empty-interface": false,
+    "no-empty": false,
+    "object-literal-sort-keys": false,
+    "array-type": false,
+    "no-bitwise": false,
+    "interface-name": false,
+    "ordered-imports": false
+  }
+}
