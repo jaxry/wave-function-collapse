@@ -4,7 +4,7 @@ export interface IOverlappingModel {
   readonly colors: number[];
   readonly patterns: ArrayLike<number>[];
   readonly propagator: number[][][][];
-  readonly stationary: number[];
+  readonly patternCount: number[];
 }
 
 export function overlappingModel(
@@ -113,11 +113,11 @@ export function overlappingModel(
 
   const T = weights.size;
   const patterns: Uint8Array[] = [];
-  const stationary: number[] = [];
+  const patternCount: number[] = [];
 
   for (const [ind, weight] of weights) {
     patterns.push(patternFromIndex(ind));
-    stationary.push(weight);
+    patternCount.push(weight);
   }
 
   const agrees = (p1: ArrayLike<number>, p2: ArrayLike<number>, dx: number, dy: number) => {
@@ -157,6 +157,6 @@ export function overlappingModel(
     N,
     patterns,
     propagator,
-    stationary,
+    patternCount,
   };
 }

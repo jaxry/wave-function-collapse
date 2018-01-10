@@ -27,12 +27,11 @@ function pickFromDistribution(array: number[], r: number): number {
 }
 
 export function startObservation(
-  { stationary, coefficients }: IOverlappingModel,
+  { patternCount, coefficients }: IOverlappingModel,
   superposition: ISuperposition,
 ) {
 
   const logT = Math.log(coefficients);
-  const totalSum = stationary.reduce((a, b) => a + b);
   const distribution = new Array(coefficients);
   const wave = superposition.wave;
 
@@ -41,7 +40,7 @@ export function startObservation(
     let argmin = -1;
 
     for (let i = 0; i < wave.length; i++) {
-      // periodic check
+      // TODO: periodicity check
 
       const w = wave[i];
       let amount = 0;
@@ -50,7 +49,7 @@ export function startObservation(
       for (let t = 0; t < coefficients; t++) {
         if (w[t]) {
           amount += 1;
-          sum += stationary[t];
+          sum += patternCount[t];
         }
       }
 
@@ -67,7 +66,7 @@ export function startObservation(
         let mainSum = 0;
         for (let t = 0; t < coefficients; t++) {
           if (w[t]) {
-            const p = stationary[t] / sum;
+            const p = patternCount[t] / sum;
             mainSum += p * Math.log(p);
           }
         }
@@ -86,7 +85,7 @@ export function startObservation(
     }
 
     for (let t = 0; t < coefficients; t++) {
-      distribution[t] = wave[argmin][t] ? stationary[t] : 0;
+      distribution[t] = wave[argmin][t] ? patternCount[t] : 0;
     }
     const r = pickFromDistribution(distribution, Math.random());
     for (let t = 0; t < coefficients; t++) {

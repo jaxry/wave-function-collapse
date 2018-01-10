@@ -1,10 +1,10 @@
 export interface ISuperposition {
+  readonly width: number;
+  readonly height: number;
   readonly wave: boolean[][];
   readonly changes: boolean[];
   readonly stack: number[];
   stacksize: number;
-  readonly width: number;
-  readonly height: number;
   change(i: number): void;
   getChange(): number | null;
   clear(): void;
@@ -35,7 +35,7 @@ function clear(this: ISuperposition) {
   }
 }
 
-export function superposition(
+export function initSuperposition(
   coefficients: number, width: number, height: number,
 ): ISuperposition {
 

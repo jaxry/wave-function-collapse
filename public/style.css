@@ -3,7 +3,7 @@ label {
 }
 
 #imageOutput {
-  width: 500px;
+  width: 100vmin;
   image-rendering: -moz-crisp-edges;
   image-rendering: pixelated;
 }
