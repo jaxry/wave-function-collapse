@@ -10,12 +10,21 @@ function orderedArraySum(array: number[]): number[] {
   return sum;
 }
 
-export function initRender(model: IOverlappingModel, superposition: ISuperposition, ctx: CanvasRenderingContext2D) {
-  const maxPatternCount = orderedArraySum(model.patternCount);
+function drawPixelFromColor(ctx: CanvasRenderingContext2D, x: number, y: number, color: number) {
+  ctx.fillStyle = `rgb(${color & 255},${(color >> 8) & 255},${(color >> 16) & 255})`;
+  ctx.fillRect(x, y, 1, 1);
+}
+
+export function createRender(
+  { colors, patterns, patternCount, N }: IOverlappingModel,
+  { wave, width, height, periodic }: ISuperposition,
+  ctx: CanvasRenderingContext2D,
+) {
+  const maxPatternCount = orderedArraySum(patternCount);
 
   return {
     drawWave(waveIndex: number) {
-      const w = superposition.wave[waveIndex];
+      const w = wave[waveIndex];
 
       let activeCoefficients = 0;
       let sum = 0;
@@ -28,16 +37,28 @@ export function initRender(model: IOverlappingModel, superposition: ISuperpositi
       for (let i = 0; i < w.length; i++) {
         if (w[i]) {
           activeCoefficients++;
-          sum += model.patternCount[i];
+          sum += patternCount[i];
           lastPatternIndex = i;
           hueX += Math.cos(angleConstant * i);
           hueY += Math.sin(angleConstant * i);
         }
       }
 
+      const x = waveIndex % width;
+      const y = Math.floor(waveIndex / width);
+
       if (activeCoefficients === 1) {
-        const color = model.colors[model.patterns[lastPatternIndex][0]];
-        ctx.fillStyle = `rgb(${color & 255},${(color >> 8) & 255},${(color >> 16) & 255})`;
+        const pattern = patterns[lastPatternIndex];
+        if (!periodic && (x >= width - N || y >= height - N)) {
+          for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+              drawPixelFromColor(ctx, x + i, y + j, colors[pattern[i + j * N]]);
+            }
+          }
+        } else {
+          drawPixelFromColor(ctx, x, y, colors[pattern[0]]);
+        }
+
       } else {
         // circular average of active coefficients
         const hue = 180 * (Math.PI + Math.atan2(hueY, hueX)) / Math.PI;
@@ -45,11 +66,8 @@ export function initRender(model: IOverlappingModel, superposition: ISuperpositi
         const saturation = 100 * (sum / maxPatternCount[activeCoefficients]);
         const lightness = Math.round(80 - 80 * activeCoefficients / w.length);
         ctx.fillStyle = `hsl(${hue},${saturation}%,${lightness}%)`;
+        ctx.fillRect(x, y, 1, 1);
       }
-
-      const x = waveIndex % superposition.width;
-      const y = Math.floor(waveIndex / superposition.width);
-      ctx.fillRect(x, y, 1, 1);
     },
   };
 }

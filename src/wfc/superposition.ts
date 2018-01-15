@@ -3,40 +3,14 @@ export interface ISuperposition {
   readonly height: number;
   readonly wave: boolean[][];
   readonly changes: boolean[];
-  readonly stack: number[];
-  stacksize: number;
+  periodic: boolean;
   change(i: number): void;
   getChange(): number | null;
   clear(): void;
 }
 
-function change(this: ISuperposition, i: number) {
-  if (this.changes[i]) {
-    return;
-  }
-  this.stack[this.stacksize] = i;
-  this.stacksize++;
-  this.changes[i] = true;
-}
-
-function getChange(this: ISuperposition): number | null {
-  if (this.stacksize === 0) {
-    return null;
-  }
-  const i = this.stack[this.stacksize - 1];
-  this.stacksize--;
-  this.changes[i] = false;
-  return i;
-}
-
-function clear(this: ISuperposition) {
-  for (const w of this.wave) {
-    w.fill(true);
-  }
-}
-
-export function initSuperposition(
-  coefficients: number, width: number, height: number,
+export function createSuperposition(
+  coefficients: number, width: number, height: number, periodic = false,
 ): ISuperposition {
 
   const wave: boolean[][] = [];
@@ -48,15 +22,36 @@ export function initSuperposition(
     changes[i] = false;
   }
 
+  const stack = new Array(width * height);
+  let stacksize = 0;
+
   return {
     wave,
     changes,
-    stack: new Array(width * height),
-    stacksize: 0,
     width,
     height,
-    change,
-    getChange,
-    clear,
-  };
+    periodic,
+    change: (i: number) => {
+      if (changes[i]) {
+        return;
+      }
+      stack[stacksize] = i;
+      stacksize++;
+      changes[i] = true;
+    },
+    getChange: () => {
+      if (stacksize === 0) {
+        return null;
+      }
+      const i = stack[stacksize - 1];
+      stacksize--;
+      changes[i] = false;
+      return i;
+    },
+    clear: () => {
+      for (const w of wave) {
+        w.fill(true);
+      }
+    },
+  };;
 }

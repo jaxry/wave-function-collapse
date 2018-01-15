@@ -3,19 +3,17 @@ import { ISuperposition } from "./superposition";
 
 export function propagate(
   { N, propagator, coefficients }: IOverlappingModel,
-  superposition: ISuperposition,
+  { wave, width, height, periodic, getChange, change }: ISuperposition,
 ) {
 
-  const i1 = superposition.getChange();
+  const i1 = getChange();
   if (i1 === null) {
     return null;
   }
 
-  const { width, height, wave } = superposition;
-
   const w1 = wave[i1];
-  const x1 = i1 % superposition.width;
-  const y1 = Math.floor(i1 / superposition.width);
+  const x1 = i1 % width;
+  const y1 = Math.floor(i1 / width);
 
   for (let dx = -N + 1; dx < N; dx++) {
     for (let dy = -N + 1; dy < N; dy++) {
@@ -33,9 +31,12 @@ export function propagate(
         y2 -= height;
       }
 
-      // TODO: periodicity check
-
       const i2 = x2 + y2 * width;
+
+      if (!periodic && (i2 % width + N > width || Math.floor(i2 / width) + N > height)) {
+        continue;
+      }
+
       const w2 = wave[i2];
       const prop = propagator[N - 1 - dx][N - 1 - dy];
 
@@ -49,7 +50,7 @@ export function propagate(
           b = w1[p[l]];
         }
         if (!b) {
-          superposition.change(i2);
+          change(i2);
           w2[t] = false;
         }
       }
