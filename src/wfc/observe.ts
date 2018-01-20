@@ -26,13 +26,13 @@ function pickFromDistribution(array: number[], r: number): number {
   return 0;
 }
 
-export function startObservation(
+export function createObservation(
   { patternCount, coefficients, N }: IOverlappingModel,
   { wave, width, height, periodic, change }: ISuperposition,
 ) {
 
   const logT = Math.log(coefficients);
-  const distribution = new Array(coefficients);
+  const distribution: number[] = [];
 
   return (): boolean | null => {
     let min = Infinity;

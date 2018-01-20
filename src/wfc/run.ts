@@ -1,7 +1,7 @@
 import { printPatterns } from "./debug";
 import { createSuperposition } from "./superposition";
-import { overlappingModel } from "./overlappingModel";
-import { startObservation } from "./observe";
+import { createOverlappingModel } from "./overlappingModel";
+import { createObservation } from "./observe";
 import { propagate } from "./propagate";
 import { createRender } from "./render";
 
@@ -9,15 +9,13 @@ export interface IWaveFunctionCollapse {
   stop(): void;
 }
 
-const outputWidth = 48;
-const outputHeight = 48;
 const targetFps = 30;
 const targetTime = 1000 / targetFps;
 
-export function waveFunctionCollapse(image: ImageData, canvas: HTMLCanvasElement): IWaveFunctionCollapse {
-  const model = overlappingModel(image);
-  const superpos = createSuperposition(model.coefficients, outputWidth, outputHeight);
-  const observe = startObservation(model, superpos);
+export function createWaveFunctionCollapse(image: ImageData, canvas: HTMLCanvasElement): IWaveFunctionCollapse {
+  const model = createOverlappingModel(image);
+  const superpos = createSuperposition(model.coefficients);
+  const observe = createObservation(model, superpos);
 
   canvas.width = superpos.width;
   canvas.height = superpos.height;

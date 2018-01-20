@@ -1,6 +1,6 @@
 
 import getImageData from "./getImageData";
-import { IWaveFunctionCollapse, waveFunctionCollapse } from "./wfc/run";
+import { IWaveFunctionCollapse, createWaveFunctionCollapse } from "./wfc/run";
 
 let wfc: IWaveFunctionCollapse | undefined;
 
@@ -9,7 +9,7 @@ function processImage(image: ImageData) {
   if (wfc) {
     wfc.stop();
   }
-  wfc = waveFunctionCollapse(image, canvas);
+  wfc = createWaveFunctionCollapse(image, canvas);
 }
 
 const imageInput = document.querySelector("#imageInput") as HTMLInputElement;

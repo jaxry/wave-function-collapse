@@ -2,59 +2,55 @@ export interface IOverlappingModel {
   readonly coefficients: number;
   readonly N: number;
   readonly colors: number[];
-  readonly patterns: ArrayLike<number>[];
+  readonly patterns: number[][];
   readonly propagator: number[][][][];
   readonly patternCount: number[];
 }
 
-export function overlappingModel(
-  image: ImageData,
+export function createOverlappingModel(
+  { width, height, data }: ImageData,
   {N = 3, periodicInput = true, symmetry = 8} = {},
 ): IOverlappingModel {
-  const SMX = image.width;
-  const SMY = image.height;
-  const bitmap = new Uint32Array(image.data.buffer);
+
+  const bitmap = new Uint32Array(data.buffer);
 
   const colors: number[] = [];
-  const sample = new Uint8Array(SMX * SMY);
+  const sample: number[] = [];
 
-  for (let y = 0; y < SMY; y++) {
-    for (let x = 0; x < SMX; x++) {
-      const color = bitmap[x + y * SMX];
-
-      let i = 0;
-      for (const c of colors) {
-        if (c === color) {
-          break;
-        }
-        i++;
+  for (const color of bitmap) {
+    let i = 0;
+    for (const c of colors) {
+      if (c === color) {
+        break;
       }
-      if (i === colors.length) {
-        colors.push(color);
-      }
-      sample[x + y * SMX] = i;
+      i++;
     }
+    if (i === colors.length) {
+      colors.push(color);
+    }
+    sample.push(i);
   }
+
   const C = colors.length;
   const W = C ** (N * N);
 
   const pattern = (f: (x: number, y: number) => number) => {
-    const result = new Uint8Array(N * N);
+    const result = [];
     for (let y = 0; y < N; y++) {
       for (let x = 0; x < N; x++) {
-        result[x + y * N] = f(x, y);
+        result.push(f(x, y));
       }
     }
     return result;
   };
 
   const patternFromSample = (x: number, y: number) => {
-    return pattern((dx, dy) => sample[(x + dx) % SMX + ((y + dy) % SMY) * SMX]);
+    return pattern((dx, dy) => sample[(x + dx) % width + ((y + dy) % height) * width]);
   };
-  const rotate = (p: ArrayLike<number>) => pattern((x, y) => p[N - 1 - y + x * N]);
-  const reflect = (p: ArrayLike<number>) => pattern((x, y) => p[N - 1 - x + y * N]);
+  const rotate = (p: number[]) => pattern((x, y) => p[N - 1 - y + x * N]);
+  const reflect = (p: number[]) => pattern((x, y) => p[N - 1 - x + y * N]);
 
-  const index = (p: ArrayLike<number>) => {
+  const index = (p: number[]) => {
     let result = 0;
     let power = 1;
 
@@ -69,9 +65,9 @@ export function overlappingModel(
   const patternFromIndex = (ind: number) => {
     let residue = ind;
     let power = W;
-    const result = new Uint8Array(N * N);
+    const result: number[] = [];
 
-    for (let i = 0; i < result.length; i++) {
+    for (let i = 0; i < N * N; i++) {
       power /= C;
       let count = 0;
 
@@ -80,7 +76,7 @@ export function overlappingModel(
         count++;
       }
 
-      result[i] = count;
+      result.push(count);
     }
 
     return result;
@@ -88,11 +84,11 @@ export function overlappingModel(
 
   const weights = new Map<number, number>();
 
-  const lenY = periodicInput ? SMY : SMY - N + 1;
-  const lenX = periodicInput ? SMX : SMX - N + 1;
+  const lenY = periodicInput ? height : height - N + 1;
+  const lenX = periodicInput ? width : width - N + 1;
   for (let y = 0; y < lenY; y++) {
     for (let x = 0; x < lenX; x++) {
-      const ps: Uint8Array[] = [];
+      const ps: number[][] = [];
 
       ps[0] = patternFromSample(x, y);
       ps[1] = reflect(ps[0]);
@@ -112,7 +108,7 @@ export function overlappingModel(
   }
 
   const T = weights.size;
-  const patterns: Uint8Array[] = [];
+  const patterns: number[][] = [];
   const patternCount: number[] = [];
 
   for (const [ind, weight] of weights) {
@@ -120,14 +116,14 @@ export function overlappingModel(
     patternCount.push(weight);
   }
 
-  const agrees = (p1: ArrayLike<number>, p2: ArrayLike<number>, dx: number, dy: number) => {
+  const agrees = (pattern1: number[], pattern2: number[], dx: number, dy: number) => {
     const xmin = dx < 0 ? 0 : dx;
     const xmax = dx < 0 ? dx + N : N;
     const ymin = dy < 0 ? 0 : dy;
     const ymax = dy < 0 ? dy + N : N;
     for (let y = ymin; y < ymax; y++) {
       for (let x = xmin; x < xmax; x++) {
-        if (p1[x + N * y] !== p2[x - dx + N * (y - dy)]) {
+        if (pattern1[x + N * y] !== pattern2[x - dx + N * (y - dy)]) {
           return false;
         }
       }
@@ -152,7 +148,7 @@ export function overlappingModel(
   }
 
   return {
-    coefficients: patterns.length,
+    coefficients: T,
     colors,
     N,
     patterns,

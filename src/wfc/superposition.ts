@@ -10,19 +10,25 @@ export interface ISuperposition {
 }
 
 export function createSuperposition(
-  coefficients: number, width: number, height: number, periodic = false,
+  coefficients: number,
+  {width = 48, height = 48, periodic = false} = {},
 ): ISuperposition {
 
   const wave: boolean[][] = [];
   const changes: boolean[] = [];
 
   for (let i = 0; i < width * height; i++) {
-    wave[i] = new Array(coefficients);
-    wave[i].fill(true);
-    changes[i] = false;
+    const w: boolean[] = [];
+
+    for (let t = 0; t < coefficients; t++) {
+      w.push(true);
+    }
+
+    wave.push(w);
+    changes.push(false);
   }
 
-  const stack = new Array(width * height);
+  const stack: number[] = [];
   let stacksize = 0;
 
   return {
