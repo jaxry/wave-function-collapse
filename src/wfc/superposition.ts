@@ -11,7 +11,7 @@ export interface ISuperposition {
 
 export function createSuperposition(
   coefficients: number,
-  {width = 48, height = 48, periodic = false} = {},
+  {width = 48, height = 48, periodic = true} = {},
 ): ISuperposition {
 
   const wave: boolean[][] = [];
@@ -59,5 +59,5 @@ export function createSuperposition(
         w.fill(true);
       }
     },
-  };;
+  };
 }

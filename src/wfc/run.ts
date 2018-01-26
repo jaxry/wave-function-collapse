@@ -5,6 +5,15 @@ import { createObservation } from "./observe";
 import { propagate } from "./propagate";
 import { createRender } from "./render";
 
+export interface IOptions {
+  periodicInput: boolean;
+  periodicOutput: boolean;
+  outputWidth: number;
+  outputHeight: number;
+  N: number;
+  symmetry: number;
+}
+
 export interface IWaveFunctionCollapse {
   stop(): void;
 }
@@ -12,13 +21,22 @@ export interface IWaveFunctionCollapse {
 const targetFps = 30;
 const targetTime = 1000 / targetFps;
 
-export function createWaveFunctionCollapse(image: ImageData, canvas: HTMLCanvasElement): IWaveFunctionCollapse {
-  const model = createOverlappingModel(image);
-  const superpos = createSuperposition(model.coefficients);
+export function createWaveFunctionCollapse(
+  image: ImageData,
+  canvas: HTMLCanvasElement,
+  { periodicInput, periodicOutput, outputWidth, outputHeight, N, symmetry }: IOptions,
+): IWaveFunctionCollapse {
+
+  const model = createOverlappingModel(image, { N, symmetry, periodicInput });
+  const superpos = createSuperposition(
+    model.coefficients,
+    { width: outputWidth, height: outputHeight, periodic: periodicOutput },
+  );
   const observe = createObservation(model, superpos);
 
   canvas.width = superpos.width;
   canvas.height = superpos.height;
+
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
   const clearCanvas = () => {
