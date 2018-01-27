@@ -15,6 +15,7 @@ function processImage(image: ImageData) {
   wfc = createWaveFunctionCollapse(image, canvas, {
     N: 3,
     symmetry: 8,
+    ground: 0,
     periodicInput: true,
     periodicOutput: true,
     outputWidth: 48,

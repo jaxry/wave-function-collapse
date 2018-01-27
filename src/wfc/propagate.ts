@@ -2,9 +2,9 @@ import { IOverlappingModel } from "./overlappingModel";
 import { ISuperposition } from "./superposition";
 
 export function propagate(
-  { N, propagator, coefficients }: IOverlappingModel,
-  { wave, width, height, periodic, getChange, change }: ISuperposition,
-) {
+  { N, propagator }: IOverlappingModel,
+  { wave, width, height, numCoefficients, periodic, setCoefficient, getChange }: ISuperposition,
+): number | null {
 
   const i1 = getChange();
   if (i1 === null) {
@@ -40,7 +40,7 @@ export function propagate(
       const w2 = wave[i2];
       const prop = propagator[N - 1 - dx][N - 1 - dy];
 
-      for (let t = 0; t < coefficients; t++) {
+      for (let t = 0; t < numCoefficients; t++) {
         if (!w2[t]) {
           continue;
         }
@@ -50,8 +50,7 @@ export function propagate(
           b = w1[p[l]];
         }
         if (!b) {
-          change(i2);
-          w2[t] = false;
+          setCoefficient(i2, t, false);
         }
       }
     }

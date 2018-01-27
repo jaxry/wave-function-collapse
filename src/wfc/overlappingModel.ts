@@ -1,5 +1,5 @@
 export interface IOverlappingModel {
-  readonly coefficients: number;
+  readonly numCoefficients: number;
   readonly N: number;
   readonly colors: number[];
   readonly patterns: number[][];
@@ -31,9 +31,6 @@ export function createOverlappingModel(
     sample.push(i);
   }
 
-  const C = colors.length;
-  const W = C ** (N * N);
-
   const pattern = (f: (x: number, y: number) => number) => {
     const result = [];
     for (let y = 0; y < N; y++) {
@@ -49,6 +46,9 @@ export function createOverlappingModel(
   };
   const rotate = (p: number[]) => pattern((x, y) => p[N - 1 - y + x * N]);
   const reflect = (p: number[]) => pattern((x, y) => p[N - 1 - x + y * N]);
+
+  const C = colors.length;
+  const W = C ** (N * N);
 
   const index = (p: number[]) => {
     let result = 0;
@@ -107,7 +107,7 @@ export function createOverlappingModel(
     }
   }
 
-  const T = weights.size;
+  const numCoefficients = weights.size;
   const patterns: number[][] = [];
   const patternCount: number[] = [];
 
@@ -136,9 +136,9 @@ export function createOverlappingModel(
     propagator[x] = [];
     for (let y = 0; y < 2 * N - 1; y++) {
       propagator[x][y] = [];
-      for (let t = 0; t < T; t++) {
+      for (let t = 0; t < numCoefficients; t++) {
         propagator[x][y][t] = [];
-        for (let t2 = 0; t2 < T; t2++) {
+        for (let t2 = 0; t2 < numCoefficients; t2++) {
           if (agrees(patterns[t], patterns[t2], x - N + 1, y - N + 1)) {
             propagator[x][y][t].push(t2);
           }
@@ -148,7 +148,7 @@ export function createOverlappingModel(
   }
 
   return {
-    coefficients: T,
+    numCoefficients,
     colors,
     N,
     patterns,

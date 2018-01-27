@@ -27,16 +27,16 @@ function pickFromDistribution(array: number[], r: number): number {
 }
 
 export function createObservation(
-  { patternCount, coefficients, N }: IOverlappingModel,
-  { wave, width, height, periodic, change }: ISuperposition,
+  { patternCount, N }: IOverlappingModel,
+  { wave, width, height, numCoefficients, periodic, collapse }: ISuperposition,
 ) {
 
-  const logT = Math.log(coefficients);
+  const logT = Math.log(numCoefficients);
   const distribution: number[] = [];
 
   return (): boolean | null => {
-    let min = Infinity;
-    let argmin = -1;
+    let minEntropy = Infinity;
+    let minEntropyWave = -1;
 
     for (let i = 0; i < wave.length; i++) {
 
@@ -48,7 +48,7 @@ export function createObservation(
       let amount = 0;
       let sum = 0;
 
-      for (let t = 0; t < coefficients; t++) {
+      for (let t = 0; t < numCoefficients; t++) {
         if (w[t]) {
           amount += 1;
           sum += patternCount[t];
@@ -66,7 +66,7 @@ export function createObservation(
         entropy = 0;
       } else {
         let mainSum = 0;
-        for (let t = 0; t < coefficients; t++) {
+        for (let t = 0; t < numCoefficients; t++) {
           if (w[t]) {
             const p = patternCount[t] / sum;
             mainSum += p * Math.log(p);
@@ -76,24 +76,22 @@ export function createObservation(
         entropy = -mainSum / logT;
       }
 
-      if (entropy > 0 && entropy + noise < min) {
-        min = entropy + noise;
-        argmin = i;
+      if (entropy > 0 && entropy + noise < minEntropy) {
+        minEntropy = entropy + noise;
+        minEntropyWave = i;
       }
     }
 
-    if (argmin === -1) {
+    if (minEntropyWave === -1) {
       return true;
     }
 
-    for (let t = 0; t < coefficients; t++) {
-      distribution[t] = wave[argmin][t] ? patternCount[t] : 0;
+    for (let t = 0; t < numCoefficients; t++) {
+      distribution[t] = wave[minEntropyWave][t] ? patternCount[t] : 0;
     }
     const r = pickFromDistribution(distribution, Math.random());
-    for (let t = 0; t < coefficients; t++) {
-      wave[argmin][t] = t === r;
-    }
-    change(argmin);
+
+    collapse(minEntropyWave, r);
 
     return null;
 

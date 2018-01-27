@@ -1,16 +1,18 @@
 export interface ISuperposition {
   readonly width: number;
   readonly height: number;
+  readonly numCoefficients: number;
   readonly wave: boolean[][];
-  readonly changes: boolean[];
   periodic: boolean;
-  change(i: number): void;
+  change(index: number): void;
   getChange(): number | null;
+  collapse(index: number, coefficient: number): void;
+  setCoefficient(waveIndex: number, coefficient: number, state: boolean): void;
   clear(): void;
 }
 
 export function createSuperposition(
-  coefficients: number,
+  numCoefficients: number,
   {width = 48, height = 48, periodic = true} = {},
 ): ISuperposition {
 
@@ -20,7 +22,7 @@ export function createSuperposition(
   for (let i = 0; i < width * height; i++) {
     const w: boolean[] = [];
 
-    for (let t = 0; t < coefficients; t++) {
+    for (let t = 0; t < numCoefficients; t++) {
       w.push(true);
     }
 
@@ -31,13 +33,13 @@ export function createSuperposition(
   const stack: number[] = [];
   let stacksize = 0;
 
-  return {
-    wave,
-    changes,
+  const superposition = {
     width,
     height,
+    numCoefficients,
+    wave,
     periodic,
-    change: (i: number) => {
+    change(i: number) {
       if (changes[i]) {
         return;
       }
@@ -45,7 +47,7 @@ export function createSuperposition(
       stacksize++;
       changes[i] = true;
     },
-    getChange: () => {
+    getChange() {
       if (stacksize === 0) {
         return null;
       }
@@ -54,10 +56,22 @@ export function createSuperposition(
       changes[i] = false;
       return i;
     },
-    clear: () => {
+    collapse(i: number, coefficient: number) {
+      for (let t = 0; t < numCoefficients; t++) {
+        wave[i][t] = t === coefficient;
+      }
+      superposition.change(i);
+    },
+    setCoefficient(i: number, coefficient: number, state: boolean) {
+      wave[i][coefficient] = state;
+      superposition.change(i);
+    },
+    clear() {
       for (const w of wave) {
         w.fill(true);
       }
     },
   };
+
+  return superposition;
 }

@@ -1,6 +1,7 @@
 import { printPatterns } from "./debug";
 import { createSuperposition } from "./superposition";
 import { createOverlappingModel } from "./overlappingModel";
+import { setGround } from "./setGround";
 import { createObservation } from "./observe";
 import { propagate } from "./propagate";
 import { createRender } from "./render";
@@ -12,6 +13,7 @@ export interface IOptions {
   outputHeight: number;
   N: number;
   symmetry: number;
+  ground: number;
 }
 
 export interface IWaveFunctionCollapse {
@@ -24,14 +26,17 @@ const targetTime = 1000 / targetFps;
 export function createWaveFunctionCollapse(
   image: ImageData,
   canvas: HTMLCanvasElement,
-  { periodicInput, periodicOutput, outputWidth, outputHeight, N, symmetry }: IOptions,
+  { periodicInput, periodicOutput, outputWidth, outputHeight, N, symmetry, ground }: IOptions,
 ): IWaveFunctionCollapse {
 
   const model = createOverlappingModel(image, { N, symmetry, periodicInput });
   const superpos = createSuperposition(
-    model.coefficients,
+    model.numCoefficients,
     { width: outputWidth, height: outputHeight, periodic: periodicOutput },
   );
+
+  setGround(ground, model, superpos);
+
   const observe = createObservation(model, superpos);
 
   canvas.width = superpos.width;
@@ -68,7 +73,7 @@ export function createWaveFunctionCollapse(
         if (waveIndex === null) {
           propagating = false;
         } else {
-          render.drawWave(waveIndex);
+          render(waveIndex);
         }
       }
       if (propagating) {
