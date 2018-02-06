@@ -1,9 +1,13 @@
-label {
-  display: block;
+.inputGroup {
+  padding: 3px 0;
+}
+
+.inputGroup > * + * {
+  margin-left: 12px;
 }
 
 .wfcOutput {
-  width: 100vmin;
+  width: 90vmin;
   image-rendering: -moz-crisp-edges;
   image-rendering: pixelated;
 }
