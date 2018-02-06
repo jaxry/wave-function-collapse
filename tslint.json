@@ -9,6 +9,7 @@
     "object-literal-sort-keys": false,
     "array-type": false,
     "no-bitwise": false,
-    "ordered-imports": false
+    "ordered-imports": false,
+    "prefer-object-spread": false
   }
 }

@@ -6,7 +6,7 @@ import { createObservation } from "./observe";
 import { propagate } from "./propagate";
 import { createRender } from "./render";
 
-export interface IOptions {
+export interface IWfcOptions {
   periodicInput: boolean;
   periodicOutput: boolean;
   outputWidth: number;
@@ -26,7 +26,7 @@ const targetTime = 1000 / targetFps;
 export function createWaveFunctionCollapse(
   image: ImageData,
   canvas: HTMLCanvasElement,
-  { periodicInput, periodicOutput, outputWidth, outputHeight, N, symmetry, ground }: IOptions,
+  { periodicInput, periodicOutput, outputWidth, outputHeight, N, symmetry, ground }: IWfcOptions,
 ): IWaveFunctionCollapse {
 
   const model = createOverlappingModel(image, { N, symmetry, periodicInput });
@@ -35,8 +35,6 @@ export function createWaveFunctionCollapse(
     { width: outputWidth, height: outputHeight, periodic: periodicOutput },
   );
 
-  setGround(ground, model, superpos);
-
   const observe = createObservation(model, superpos);
 
   canvas.width = superpos.width;
@@ -44,9 +42,11 @@ export function createWaveFunctionCollapse(
 
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-  const clearCanvas = () => {
+  const clear = () => {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    superpos.clear();
+    setGround(ground, superpos);
   };
 
   const render = createRender(model, superpos, ctx);
@@ -61,8 +61,7 @@ export function createWaveFunctionCollapse(
       if (result === null) {
         propagating = true;
       } else if (result === false)  {
-        superpos.clear();
-        clearCanvas();
+        clear();
       } else {
         return;
       }
@@ -88,7 +87,7 @@ export function createWaveFunctionCollapse(
     animationFrameId = requestAnimationFrame(tick);
   };
 
-  clearCanvas();
+  clear();
   tick();
 
   return {

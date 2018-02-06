@@ -4,9 +4,9 @@ export interface ISuperposition {
   readonly numCoefficients: number;
   readonly wave: boolean[][];
   periodic: boolean;
-  change(index: number): void;
+  change(waveIndex: number): void;
   getChange(): number | null;
-  collapse(index: number, coefficient: number): void;
+  collapse(waveIndex: number, coefficient: number): void;
   setCoefficient(waveIndex: number, coefficient: number, state: boolean): void;
   clear(): void;
 }

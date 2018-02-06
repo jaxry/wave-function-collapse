@@ -1,29 +1,29 @@
 
 import getImageData from "./getImageData";
 import { IWaveFunctionCollapse, createWaveFunctionCollapse } from "./wfc/run";
-import { createElem, buildDomTree } from "./util";
+import { buildDomTree } from "./util";
+import { createWfcInput } from "./components/wfcOptions";
 
 let wfc: IWaveFunctionCollapse | undefined;
 
-const canvas = createElem<HTMLCanvasElement>("canvas", { class: "wfcOutput", width: 0, height: 0 });
+const canvas = document.createElement("canvas");
+canvas.className = "wfcOutput";
+canvas.width = 0;
+canvas.height = 0;
+
+const wfcInput = createWfcInput();
 
 function processImage(image: ImageData) {
   if (wfc) {
     wfc.stop();
   }
 
-  wfc = createWaveFunctionCollapse(image, canvas, {
-    N: 3,
-    symmetry: 8,
-    ground: 0,
-    periodicInput: true,
-    periodicOutput: true,
-    outputWidth: 48,
-    outputHeight: 48,
-  });
+  wfc = createWaveFunctionCollapse(image, canvas, wfcInput.options);
 }
 
-const imageInput = createElem<HTMLInputElement>("input", { type: "file", accept: "image/*" });
+const imageInput = document.createElement("input");
+imageInput.type = "file";
+imageInput.accept = "image/*";
 imageInput.addEventListener("change", () => {
   if (imageInput.files) {
     getImageData(imageInput.files[0]).then(processImage);
@@ -32,8 +32,12 @@ imageInput.addEventListener("change", () => {
 
 document.body.appendChild(
   buildDomTree(
-    createElem("main"), [
-      createElem("label", undefined, "Image: "), [ imageInput ],
+    document.createElement("main"), [
+      document.createElement("label"), [
+        "Image",
+        imageInput,
+      ],
+      wfcInput.domElement,
       canvas,
     ],
   ),
