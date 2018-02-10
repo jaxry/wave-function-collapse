@@ -15,6 +15,7 @@ export interface IComponentWfcOptions extends IComponent {
 
 export function createWfcInput(): IComponentWfcOptions {
   const domElement = document.createElement("div");
+  domElement.className = "wfcInputComponent";
 
   const components: { [P in keyof IWfcOptions]: IComponentInput<IWfcOptions[P]> } = {
     N: createRadioInput("Pattern size", [
@@ -36,10 +37,10 @@ export function createWfcInput(): IComponentWfcOptions {
 
   const tooltips: { [P in keyof IWfcOptions]: string } = {
     N: "The width and height, in pixels, of each pattern sampled from the input bitmap. A higher value captures bigger features of the input, but runs more slowly.",
-    symmetry: "Add extra patterns by reflecting or rotating each sampled pattern.",
-    ground: "Indicates the pattern index that should be used for the bottom row of output pixels. Negative numbers are supported and start from the end of the pattern list. 0 for no ground pattern.",
+    symmetry: "Add extra patterns by reflecting or rotating each pattern sampled from the input bitmap.",
+    ground: "Set the bottom row of output pixels to the pattern indexed by this number. Negative numbers are supported and start from the end of the pattern list. 0 for no ground pattern.",
     periodicInput: "Checking indicates that the input bitmap is tileable and wraps around its edges",
-    periodicOutput: "Checking produces an output bitmap that is tileable and wraps around its edges",
+    periodicOutput: "Checking produces an output bitmap that tiles and wraps around its edges",
     outputWidth: "The width, in pixels, of the output bitmap",
     outputHeight: "The height, in pixels, of the output bitmap",
   };

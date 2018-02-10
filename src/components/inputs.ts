@@ -16,7 +16,7 @@ export function createNumberInput(
 
   return {
     domElement: buildDomTree(
-      document.createElement("label"), [
+      Object.assign(document.createElement("label"), { className: "numberInputComponent" }), [
         `${labelText} `,
         input,
       ],
@@ -40,7 +40,7 @@ export function createCheckboxInput(
 
   return {
     domElement: buildDomTree(
-      document.createElement("label"), [
+      Object.assign(document.createElement("label"), { className: "checkboxInputComponent" }), [
         input,
         labelText,
       ],
@@ -63,7 +63,7 @@ export function createRadioInput<T>(
   const inputs: HTMLInputElement[] = [];
 
   const domElement = buildDomTree(
-    Object.assign(document.createElement("div"), { className: "radio" }), [
+    Object.assign(document.createElement("div"), { className: "radioComponent" }), [
       `${radioName} `,
     ],
   );
