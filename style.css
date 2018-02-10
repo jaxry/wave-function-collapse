@@ -11,3 +11,7 @@
   image-rendering: -moz-crisp-edges;
   image-rendering: pixelated;
 }
+
+main > * {
+  margin: 10px 0px;
+}
