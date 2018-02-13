@@ -1,19 +1,15 @@
 import {  buildDomTree } from "../util";
 import { IComponent } from "./component";
 import { createNumberInput, createCheckboxInput, IComponentInput, createRadioInput } from "./inputs";
+import { inputGroup } from "./common";
 import { IWfcOptions } from "../wfc/run";
-
-function inputGroup() {
-  const div = document.createElement("div");
-  div.className = "inputGroup";
-  return div;
-}
 
 export interface IComponentWfcOptions extends IComponent {
   options: IWfcOptions;
+  updateOptions(options: Partial<IWfcOptions>): void;
 }
 
-export function createWfcInput(): IComponentWfcOptions {
+export function createWfcOptions(): IComponentWfcOptions {
   const domElement = document.createElement("div");
   domElement.className = "wfcInputComponent";
 
@@ -49,7 +45,7 @@ export function createWfcInput(): IComponentWfcOptions {
     (components as any)[k].domElement.title = (tooltips as any)[k];
   }
 
-  const wfcInput = {
+  const wfcOptions = {
     domElement: buildDomTree(domElement, [
       document.createElement("fieldset"), [
         document.createElement("legend"), ["Input Bitmap"],
@@ -87,13 +83,19 @@ export function createWfcInput(): IComponentWfcOptions {
       return vals as IWfcOptions;
     },
     set options(x: IWfcOptions) {
-      for (const k in x) {
-        (components as any)[k].value = (x as any)[k];
+      for (const k in components) {
+        const val = (x as any)[k];
+        if (val !== undefined) {
+          (components as any)[k].value = (x as any)[k];
+        }
       }
+    },
+    updateOptions(x: Partial<IWfcOptions>) {
+      wfcOptions.options = x as IWfcOptions;
     },
   };
 
-  wfcInput.options = {
+  wfcOptions.options = {
     N: 3,
     symmetry: 8,
     ground: 0,
@@ -103,5 +105,5 @@ export function createWfcInput(): IComponentWfcOptions {
     outputHeight: 48,
   };
 
-  return wfcInput;
+  return wfcOptions;
 }

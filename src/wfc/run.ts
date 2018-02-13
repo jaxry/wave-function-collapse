@@ -17,12 +17,10 @@ export interface IWfcOptions {
 }
 
 export interface IWaveFunctionCollapse {
-  start(): void;
   stop(): void;
-  clear(): void;
 }
 
-const targetFps = 30;
+const targetFps = 45;
 const targetTime = 1000 / targetFps;
 
 export function createWaveFunctionCollapse(
@@ -90,12 +88,11 @@ export function createWaveFunctionCollapse(
   };
 
   clear();
+  tick();
 
   return {
-    start: tick,
     stop() {
       cancelAnimationFrame(animationFrameId);
     },
-    clear,
   };
 }

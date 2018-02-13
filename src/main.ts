@@ -1,8 +1,8 @@
 
-import getImageData from "./getImageData";
 import { IWaveFunctionCollapse, createWaveFunctionCollapse } from "./wfc/run";
 import { buildDomTree } from "./util";
-import { createWfcInput } from "./components/wfcOptions";
+import { createWfcOptions } from "./components/wfcOptions";
+import { createPresetPicker } from "./components/presetPicker";
 
 let wfc: IWaveFunctionCollapse | undefined;
 
@@ -11,44 +11,41 @@ canvas.className = "wfcOutput";
 canvas.width = 0;
 canvas.height = 0;
 
-const wfcInput = createWfcInput();
+const wfcOptions = createWfcOptions();
+let inputBitmap: ImageData | undefined;
 
-function processImage(image: ImageData) {
+const start = () => {
   if (wfc) {
     wfc.stop();
   }
 
-  wfc = createWaveFunctionCollapse(image, canvas, wfcInput.options);
-  wfc.start();
-}
-
-const imageInput = document.createElement("input");
-imageInput.type = "file";
-imageInput.accept = "image/*";
-imageInput.onchange = () => {
-  if (imageInput.files) {
-    getImageData(imageInput.files[0]).then(processImage);
+  if (!inputBitmap) {
+    return;
   }
+
+  wfc = createWaveFunctionCollapse(inputBitmap, canvas, wfcOptions.options);
+};
+
+const presetPicker = createPresetPicker();
+presetPicker.onPick = (image, options) => {
+  inputBitmap = image;
+  wfcOptions.updateOptions(options);
+  start();
 };
 
 const restartWfc = document.createElement("input");
 restartWfc.type = "button";
 restartWfc.value = "Restart Generation";
-restartWfc.onclick = () => {
-  if (wfc) {
-    wfc.stop();
-    wfc.clear();
-    wfc.start();
-  }
-};
+restartWfc.onclick = start;
 
 document.body.appendChild(
   buildDomTree(
     document.createElement("main"), [
-      document.createElement("div"), [
-        document.createElement("label"), ["Image ", imageInput],
-      ],
-      wfcInput.domElement,
+      document.createElement("h2"), ["Input bitmap"],
+      presetPicker.domElement,
+      document.createElement("h2"), ["Options"],
+      wfcOptions.domElement,
+      document.createElement("h2"), ["Output"],
       document.createElement("div"), [
         restartWfc,
       ],

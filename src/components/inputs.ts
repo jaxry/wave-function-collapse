@@ -3,6 +3,7 @@ import { IComponent } from "./component";
 
 export interface IComponentInput<T> extends IComponent {
   value: T;
+  onInput?: ((value: T) => void);
 }
 
 export function createNumberInput(
@@ -27,6 +28,7 @@ export function createNumberInput(
     set value(x) {
       input.value = x.toString();
     },
+    // TODO: add onInput property
   };
 }
 
@@ -51,6 +53,7 @@ export function createCheckboxInput(
     set value(x) {
       input.checked = x;
     },
+    // TODO: add onInput property
   };
 }
 
@@ -59,37 +62,30 @@ export function createRadioInput<T>(
   choices: Array<{ label: string, value: T }>,
   id?: string,
 ): IComponentInput<T> {
-  const values: T[] = [];
-  const inputs: HTMLInputElement[] = [];
 
-  const domElement = buildDomTree(
-    Object.assign(document.createElement("div"), { className: "radioComponent" }), [
-      `${radioName} `,
-    ],
-  );
+  const domElement = document.createElement("div");
+  domElement.className = "radioComponent";
+  domElement.textContent = `${radioName} `;
 
   id = id || radioName;
 
+  const inputs: HTMLInputElement[] = [];
+
   for (let i = 0; i < choices.length; i++) {
     const { label, value } = choices[i];
-    values.push(value);
 
     const input = document.createElement("input");
     inputs.push(input);
 
     input.type = "radio";
     input.name = id;
-    input.value = i.toString();
     if (i === 0) {
       input.checked = true;
     }
 
     domElement.appendChild(
       buildDomTree(
-        document.createElement("label"), [
-          input,
-          label,
-        ],
+        document.createElement("label"), [input, label],
       ),
     );
   }
@@ -97,20 +93,81 @@ export function createRadioInput<T>(
   return {
     domElement,
     get value() {
-      for (const input of inputs) {
-        if (input.checked) {
-          const index = parseInt(input.value, 10);
-          return values[index];
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i].checked) {
+          return choices[i].value;
         }
       }
-      return values[0];
+      return choices[0].value;
     },
     set value(x: T) {
-      for (let i = 0; i < values.length; i++) {
-        if (values[i] === x) {
+      for (let i = 0; i < choices.length; i++) {
+        if (choices[i].value === x) {
           inputs[i].checked = true;
         }
       }
     },
+    // TODO: add onInput property
   };
+}
+
+export function createSelectInput<T>(
+  selectName: string,
+  choices: Array<{ label: string, value: T }>,
+): IComponentInput<T> & { deselect(): void } {
+  const selectElem = document.createElement("select");
+
+  const options: HTMLOptionElement[] = [];
+
+  const emptyOption = document.createElement("option");
+  emptyOption.disabled = true;
+  emptyOption.selected = true;
+  emptyOption.style.display = "none";
+  selectElem.append(emptyOption);
+
+  for (const { label, value } of choices) {
+    const option = document.createElement("option");
+    option.textContent = label;
+
+    selectElem.appendChild(option);
+    options.push(option);
+  }
+
+  let onInput: IComponentInput<T>["onInput"];
+
+  const selectInput = {
+    domElement: buildDomTree(
+      Object.assign(document.createElement("label"), { className: "selectComponent" }), [
+        `${selectName} `,
+        selectElem,
+      ],
+    ),
+    get value() {
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].selected) {
+          return choices[i].value;
+        }
+      }
+      return choices[0].value;
+    },
+    set value(x: T) {
+      for (let i = 0; i < choices.length; i++) {
+        if (choices[i].value === x) {
+          options[i].selected = true;
+        }
+      }
+    },
+    get onInput() {
+      return onInput;
+    },
+    set onInput(fn) {
+      onInput = fn;
+      (selectElem.onchange as any) = fn ? () => fn(selectInput.value) : undefined;
+    },
+    deselect() {
+      emptyOption.selected = true;
+    },
+  };
+
+  return selectInput;
 }
