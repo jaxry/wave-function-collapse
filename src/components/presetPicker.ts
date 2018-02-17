@@ -24,6 +24,7 @@ export function createPresetPicker(): IComponentPresetPicker {
 
   const previewImage = document.createElement("img");
   previewImage.className = "presetPreview";
+  previewImage.style.display = "none";
 
   const imageInput = document.createElement("input");
   imageInput.type = "file";
@@ -41,6 +42,7 @@ export function createPresetPicker(): IComponentPresetPicker {
       getImageData(path).then((image) => onPick(image, {}));
       presetSelect.deselect();
       previewImage.src = path;
+      previewImage.style.display = "";
     }
   };
 
@@ -50,6 +52,7 @@ export function createPresetPicker(): IComponentPresetPicker {
     const path = getPresetPath(preset.name);
     getImageData(path).then((image) => onPick(image, preset));
     previewImage.src = path;
+    previewImage.style.display = "";
   };
 
   buildDomTree(presetPicker.domElement, [
