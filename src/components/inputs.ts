@@ -115,6 +115,7 @@ export function createSelectInput<T>(
   selectName: string,
   choices: Array<{ label: string, value: T }>,
 ): IComponentInput<T> & { deselect(): void } {
+
   const selectElem = document.createElement("select");
 
   const options: HTMLOptionElement[] = [];

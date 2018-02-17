@@ -1,5 +1,5 @@
 import getImageData from "../getImageData";
-import {  buildDomTree } from "../util";
+import { buildDomTree } from "../util";
 import { IComponent } from "./component";
 import { createSelectInput } from "./inputs";
 import { inputGroup } from "./common";
@@ -22,6 +22,9 @@ export function createPresetPicker(): IComponentPresetPicker {
     }
   };
 
+  const previewImage = document.createElement("img");
+  previewImage.className = "presetPreview";
+
   const imageInput = document.createElement("input");
   imageInput.type = "file";
   imageInput.accept = "image/*";
@@ -34,8 +37,10 @@ export function createPresetPicker(): IComponentPresetPicker {
 
   imageInput.onchange = () => {
     if (imageInput.files) {
-      getImageData(imageInput.files[0]).then((image) => onPick(image, {}));
+      const path = URL.createObjectURL(imageInput.files[0]);
+      getImageData(path).then((image) => onPick(image, {}));
       presetSelect.deselect();
+      previewImage.src = path;
     }
   };
 
@@ -44,6 +49,7 @@ export function createPresetPicker(): IComponentPresetPicker {
     const preset = {...presetDefaults, ...value};
     const path = getPresetPath(preset.name);
     getImageData(path).then((image) => onPick(image, preset));
+    previewImage.src = path;
   };
 
   buildDomTree(presetPicker.domElement, [
@@ -55,9 +61,10 @@ export function createPresetPicker(): IComponentPresetPicker {
     ],
     inputGroup(), [
       document.createElement("label"), [
-        "Custom Bitmap: ", imageInput,
+        "Custom Bitmap ", imageInput,
       ],
     ],
+    previewImage,
   ]);
 
   return presetPicker;

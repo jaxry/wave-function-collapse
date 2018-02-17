@@ -1,6 +1,6 @@
-export default function getImageData(object: File | Blob | string): Promise<ImageData> {
+export default function getImageData(url: string): Promise<ImageData> {
   const img = document.createElement("img");
-  img.src = typeof object === "string" ? object : URL.createObjectURL(object);
+  img.src = url;
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
