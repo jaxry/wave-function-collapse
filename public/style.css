@@ -7,8 +7,8 @@
 }
 
 .presetPreview {
-  height: 180px;
-  max-width: 95%;
+  height: 160px;
+  max-width: 90%;
   object-fit: contain;
   image-rendering: -moz-crisp-edges;
   image-rendering: pixelated;
@@ -16,6 +16,10 @@
 
 .wfcOutput {
   width: 90vmin;
+  max-height: 90vmin;
+  object-fit: contain;
+  object-position: top left;
+  background-position: top left;
   image-rendering: -moz-crisp-edges;
   image-rendering: pixelated;
 }

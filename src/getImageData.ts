@@ -13,4 +13,4 @@ export default function getImageData(url: string): Promise<ImageData> {
       resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
     });
   });
-};
+}

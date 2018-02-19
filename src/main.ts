@@ -38,9 +38,10 @@ restartWfc.type = "button";
 restartWfc.value = "Restart Generation";
 restartWfc.onclick = start;
 
-document.body.appendChild(
-  buildDomTree(
-    document.createElement("main"), [
+const mainElem = document.querySelector("main");
+if (mainElem) {
+  const content = buildDomTree(
+    mainElem, [
       document.createElement("h2"), ["Input bitmap"],
       presetPicker.domElement,
       document.createElement("h2"), ["Options"],
@@ -51,5 +52,6 @@ document.body.appendChild(
       ],
       canvas,
     ],
-  ),
-);
+  );
+  mainElem.appendChild(content);
+}
